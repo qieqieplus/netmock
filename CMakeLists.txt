@@ -10,3 +10,4 @@ add_library(
         env.h netmock.h
 )
 target_link_libraries(netmock dl)
+install(TARGETS netmock)
