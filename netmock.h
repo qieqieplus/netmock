@@ -7,6 +7,4 @@
 
 typedef int (*ioctl_fn)(int fd, unsigned long request, void *data);
 
-int ioctl(int fd, unsigned long request, void *data);
-
 #endif//NETWRAP_NETMOCK_H

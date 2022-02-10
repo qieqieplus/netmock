@@ -2,19 +2,19 @@
 // Created by qieqie on 2021/1/27.
 //
 
-#define _GNU_SOURCE
-#define _USE_GNU
-
 #include "netmock.h"
 #include "env.h"
-#define _SYS_IOCTL_H
-#include <bits/ioctls.h>
-#undef _SYS_IOCTL_H
 #include <dlfcn.h>
 #include <net/if.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/ioctl.h>
+
+#ifndef RTLD_NEXT
+#define RTLD_NEXT ((void *) -1l)
+#endif
 
 static ioctl_fn __ioctl = NULL;
 extern struct net_if config;
@@ -38,7 +38,7 @@ void mac_addr_modify(void *data) {
     }
 }
 
-int ioctl(int fd, unsigned long request, void *data) {
+int ioctl(int fd, unsigned long request, ...) {
     char *msg;
     if (__ioctl == NULL) {
         __ioctl = (ioctl_fn) dlsym(RTLD_NEXT, "ioctl");
@@ -48,6 +48,13 @@ int ioctl(int fd, unsigned long request, void *data) {
             exit(1);
         }
     }
+
+    va_list args;
+    void *data;
+
+    va_start(args, request);
+    data = va_arg(args, void *);
+    va_end(args);
 
     int ret = __ioctl(fd, request, data);
     if (ret == 0) {
